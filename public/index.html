@@ -1,0 +1,916 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Bot Command Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:active {
+            transform: scale(0.98);
+        }
+
+        .stat-card i {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        .stat-card h3 {
+            color: #333;
+            margin-bottom: 3px;
+            font-size: 1.2em;
+        }
+
+        .stat-card p {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .upload-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .upload-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2em;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-area:active {
+            transform: scale(0.98);
+        }
+
+        .upload-area i {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 80px;
+        }
+
+        .command-card {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .command-card:active {
+            transform: scale(0.98);
+        }
+
+        .command-type-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .badge-normal {
+            background: #4caf50;
+        }
+
+        .badge-auto {
+            background: #ff9800;
+        }
+
+        .command-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-right: 80px;
+        }
+
+        .command-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .command-description {
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            font-size: 0.9em;
+        }
+
+        .command-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            justify-content: center;
+            font-weight: 500;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+            padding: 14px;
+            font-size: 1em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal.fullscreen .modal-content {
+            max-width: 100%;
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            border-radius: 0;
+            margin: 0;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 0;
+            border-radius: 20px;
+            max-width: 95%;
+            width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .modal-header h2 {
+            color: white;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toolbar-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s;
+        }
+
+        .toolbar-btn:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.3);
+        }
+
+        .close-btn {
+            font-size: 1.8em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .close-btn:active {
+            transform: scale(0.9);
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+        .modal.fullscreen .form-group textarea {
+            min-height: calc(100vh - 400px);
+        }
+
+        .form-group textarea:not(.fullscreen-editor) {
+            min-height: 200px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            min-width: 250px;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: toastSlide 0.3s;
+        }
+
+        @keyframes toastSlide {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+            to {
+                bottom: 80px;
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #4caf50;
+        }
+
+        .toast.error {
+            border-left: 4px solid #f44336;
+        }
+
+        .code-preview {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 120px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+
+        .reload-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #4caf50;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .reload-btn:active {
+            transform: scale(0.9) rotate(180deg);
+        }
+
+        .type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .type-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .type-option:active {
+            transform: scale(0.98);
+        }
+
+        .type-option.selected {
+            border-color: #667eea;
+            background: #f0f3ff;
+            color: #667eea;
+        }
+
+        .type-option i {
+            display: block;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-width: 100%;
+                border-radius: 20px 20px 0 0;
+            }
+
+            .stat-card h3 {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-robot"></i> Bot Command Manager</h1>
+            <p>จัดการคำสั่งของบอทแบบ Real-time</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <i class="fas fa-terminal" style="color: #667eea;"></i>
+                <h3 id="totalCommands">0</h3>
+                <p>คำสั่งทั้งหมด</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock" style="color: #4caf50;"></i>
+                <h3 id="lastUpdate">-</h3>
+                <p>อัพเดทล่าสุด</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle" style="color: #ffc107;"></i>
+                <h3 id="status">Online</h3>
+                <p>สถานะบอท</p>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h2><i class="fas fa-cloud-upload-alt"></i> อัพโหลดคำสั่งใหม่</h2>
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-file-code"></i>
+                <h3>คลิกเพื่ออัพโหลดไฟล์ .js</h3>
+                <p>หรือลากไฟล์มาวางที่นี่</p>
+                <input type="file" id="fileInput" accept=".js" multiple>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 15px;" onclick="createNewCommand()">
+                <i class="fas fa-plus-circle"></i> สร้างคำสั่งใหม่
+            </button>
+        </div>
+
+        <div id="commandsList" class="commands-grid">
+            <!-- Commands will be loaded here -->
+        </div>
+    </div>
+
+    <button class="reload-btn" onclick="reloadCommands()" title="รีโหลดคำสั่งทั้งหมด">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> <span id="modalTitle">แก้ไขคำสั่ง</span></h2>
+                <div class="modal-toolbar">
+                    <button class="toolbar-btn" onclick="toggleFullscreen()" title="เต็มจอ">
+                        <i class="fas fa-expand" id="fullscreenIcon"></i>
+                    </button>
+                    <span class="close-btn" onclick="closeModal()">&times;</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="type-selector">
+                    <div class="type-option selected" data-type="normal" onclick="selectType('normal')">
+                        <i class="fas fa-terminal"></i>
+                        <div>คำสั่งทั่วไป</div>
+                    </div>
+                    <div class="type-option" data-type="auto" onclick="selectType('auto')">
+                        <i class="fas fa-magic"></i>
+                        <div>คำสั่งอัตโนมัติ</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> ชื่อคำสั่ง</label>
+                    <input type="text" id="editName" placeholder="ชื่อคำสั่ง">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-info-circle"></i> คำอธิบาย</label>
+                    <input type="text" id="editDescription" placeholder="คำอธิบายคำสั่ง">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-code"></i> โค้ด (JavaScript)</label>
+                    <textarea id="editCode" placeholder="เขียนโค้ดที่นี่..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" style="background: #999; color: white;" onclick="closeModal()">
+                    <i class="fas fa-times"></i> ยกเลิก
+                </button>
+                <button class="btn btn-primary" onclick="saveCommand()">
+                    <i class="fas fa-save"></i> บันทึก
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle" style="font-size: 1.5em;"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        let currentEditFile = null;
+        let isFullscreen = false;
+        let selectedType = 'normal';
+
+        // Load commands on page load
+        loadCommands();
+        setInterval(loadCommands, 5000);
+
+        function toggleFullscreen() {
+            const modal = document.getElementById('editModal');
+            const icon = document.getElementById('fullscreenIcon');
+            isFullscreen = !isFullscreen;
+            
+            if (isFullscreen) {
+                modal.classList.add('fullscreen');
+                icon.className = 'fas fa-compress';
+            } else {
+                modal.classList.remove('fullscreen');
+                icon.className = 'fas fa-expand';
+            }
+        }
+
+        function selectType(type) {
+            selectedType = type;
+            document.querySelectorAll('.type-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector('[data-type="' + type + '"]').classList.add('selected');
+        }
+
+        async function loadCommands() {
+            try {
+                const response = await fetch('/api/commands');
+                const commands = await response.json();
+                
+                document.getElementById('totalCommands').textContent = commands.length;
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                
+                const commandsList = document.getElementById('commandsList');
+                commandsList.innerHTML = '';
+                
+                commands.forEach(cmd => {
+                    // ตรวจสอบประเภทคำสั่งจากโค้ด
+                    const isAuto = cmd.code.includes('onStart:') || cmd.code.includes('auto:') || cmd.code.includes('autoExecute:');
+                    const typeClass = isAuto ? 'badge-auto' : 'badge-normal';
+                    const typeText = isAuto ? 'อัตโนมัติ' : 'ทั่วไป';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'command-card';
+                    card.innerHTML = `
+                        <div class="command-type-badge ${typeClass}">
+                            <i class="fas fa-${isAuto ? 'magic' : 'terminal'}"></i> ${typeText}
+                        </div>
+                        <div class="command-header">
+                            <div class="command-name"><i class="fas fa-bolt"></i> ${cmd.name}</div>
+                        </div>
+                        <div class="command-description">${cmd.description || 'ไม่มีคำอธิบาย'}</div>
+                        <div class="code-preview">${escapeHtml(cmd.code.substring(0, 120))}...</div>
+                        <div class="command-actions">
+                            <button class="btn btn-edit" onclick="editCommand('${cmd.filename}')">
+                                <i class="fas fa-edit"></i> แก้ไข
+                            </button>
+                            <button class="btn btn-delete" onclick="deleteCommand('${cmd.filename}')">
+                                <i class="fas fa-trash"></i> ลบ
+                            </button>
+                        </div>
+                    `;
+                    commandsList.appendChild(card);
+                });
+            } catch (error) {
+                showToast('เกิดข้อผิดพลาดในการโหลดคำสั่ง', 'error');
+            }
+        }
+
+        async function editCommand(filename) {
+            try {
+                const response = await fetch('/api/commands/' + filename);
+                const data = await response.json();
+                
+                currentEditFile = filename;
+                document.getElementById('modalTitle').textContent = 'แก้ไขคำสั่ง';
+                document.getElementById('editName').value = data.name;
+                document.getElementById('editName').setAttribute('readonly', true);
+                document.getElementById('editDescription').value = data.description;
+                document.getElementById('editCode').value = data.code;
+                
+                // ตรวจสอบประเภท
+                const isAuto = data.code.includes('onStart:') || data.code.includes('auto:') || data.code.includes('autoExecute:');
+                selectType(isAuto ? 'auto' : 'normal');
+                
+                document.getElementById('editModal').classList.add('active');
+            } catch (error) {
+                showToast('ไม่สามารถโหลดข้อมูลคำสั่งได้', 'error');
+            }
+        }
+
+        async function saveCommand() {
+            const name = document.getElementById('editName').value.trim();
+            let code = document.getElementById('editCode').value;
+            
+            if (!name) {
+                showToast('กรุณาใส่ชื่อคำสั่ง', 'error');
+                return;
+            }
+            
+            // ถ้าเป็นคำสั่งใหม่และไม่มี module.exports ให้สร้างให้
+            if (!currentEditFile && !code.includes('module.exports')) {
+                const description = document.getElementById('editDescription').value;
+                if (selectedType === 'auto') {
+                    code = `module.exports = {
+  name: '${name}',
+  description: '${description || '🤖 คำสั่งอัตโนมัติ'}',
+  auto: true, // คำสั่งนี้ทำงานอัตโนมัติ
+  
+  // ฟังก์ชันที่รันเมื่อบอทเริ่มต้น
+  async onStart(api) {
+    console.log('คำสั่ง ${name} เริ่มต้นแล้ว');
+    // เขียนโค้ดที่ต้องการให้รันอัตโนมัติที่นี่
+  },
+  
+  // ฟังก์ชันปกติสำหรับรันด้วยคำสั่ง
+  async execute(senderId, args, api) {
+    await api.sendText(senderId, 'สวัสดี! นี่คือคำสั่งอัตโนมัติ ${name}');
+  }
+};`;
+                } else {
+                    code = `module.exports = {
+  name: '${name}',
+  description: '${description || '📝 คำสั่งใหม่'}',
+  
+  async execute(senderId, args, api) {
+    await api.sendText(senderId, 'สวัสดี! นี่คือคำสั่ง ${name}');
+    
+    // เขียนโค้ดคำสั่งของคุณที่นี่
+  }
+};`;
+                }
+                document.getElementById('editCode').value = code;
+            }
+            
+            const filename = currentEditFile || (name + '.js');
+            
+            try {
+                const response = await fetch('/api/commands/' + filename, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                
+                if (response.ok) {
+                    showToast('✅ บันทึกคำสั่งสำเร็จ!', 'success');
+                    closeModal();
+                    loadCommands();
+                    reloadCommands();
+                } else {
+                    showToast('❌ เกิดข้อผิดพลาดในการบันทึก', 'error');
+                }
+            } catch (error) {
+                showToast('❌ เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        async function deleteCommand(filename) {
+            if (!confirm('⚠️ คุณแน่ใจหรือไม่ที่จะลบคำสั่งนี้?')) return;
+            
+            try {
+                const response = await fetch('/api/commands/' + filename, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showToast('🗑️ ลบคำสั่งสำเร็จ!', 'success');
+                    loadCommands();
+                    reloadCommands();
+                } else {
+                    showToast('❌ เกิดข้อผิดพลาดในการลบ', 'error');
+                }
+            } catch (error) {
+                showToast('❌ เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        async function reloadCommands() {
+            try {
+                const response = await fetch('/api/reload', { method: 'POST' });
+                if (response.ok) {
+                    showToast('🔄 รีโหลดคำสั่งสำเร็จ!', 'success');
+                    loadCommands();
+                }
+            } catch (error) {
+                showToast('❌ เกิดข้อผิดพลาดในการรีโหลด', 'error');
+            }
+        }
+
+        function createNewCommand() {
+            currentEditFile = null;
+            isFullscreen = false;
+            document.getElementById('modalTitle').textContent = 'สร้างคำสั่งใหม่';
+            document.getElementById('editName').value = '';
+            document.getElementById('editName').removeAttribute('readonly');
+            document.getElementById('editDescription').value = '';
+            document.getElementById('editCode').value = '';
+            selectType('normal');
+            document.getElementById('editModal').classList.remove('fullscreen');
+            document.getElementById('fullscreenIcon').className = 'fas fa-expand';
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+            isFullscreen = false;
+            document.getElementById('editModal').classList.remove('fullscreen');
+            document.getElementById('fullscreenIcon').className = 'fas fa-expand';
+        }
+
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            const icon = toast.querySelector('i');
+            
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+                icon.style.color = '#4caf50';
+            } else {
+                icon.className = 'fas fa-exclamation-circle';
+                icon.style.color = '#f44336';
+            }
+            
+            toast.className = 'toast show ' + type;
+            document.getElementById('toastMessage').textContent = message;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // File upload
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const files = e.target.files;
+            for (let file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        showToast('✅ อัพโหลด ' + file.name + ' สำเร็จ!', 'success');
+                    } else {
+                        showToast('❌ ไม่สามารถอัพโหลด ' + file.name, 'error');
+                    }
+                } catch (error) {
+                    showToast('❌ เกิดข้อผิดพลาด', 'error');
+                }
+            }
+            loadCommands();
+            reloadCommands();
+            e.target.value = '';
+        });
+
+        // Drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#eef0ff';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '#f8f9ff';
+        });
+        uploadArea.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#f8f9ff';
+            const files = e.dataTransfer.files;
+            document.getElementById('fileInput').files = files;
+            document.getElementById('fileInput').dispatchEvent(new Event('change'));
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + S = Save
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (document.getElementById('editModal').classList.contains('active')) {
+                    saveCommand();
+                }
+            }
+            // Escape = Close modal
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
